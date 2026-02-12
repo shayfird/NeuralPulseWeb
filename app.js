@@ -1,65 +1,76 @@
-// NeuralPulse Web App Logic
-
-// ==========================================
-// CONFIGURATION
+// FIREBASE CONFIGURATION
 // ==========================================
 const FIREBASE_CONFIG = {
     apiKey: "AIzaSyACh3EtuKXyh68t7ZMIidHhxBk3DUnuKI0",
     authDomain: "neuralpulse-b9e9b.firebaseapp.com",
     databaseURL: "https://neuralpulse-b9e9b-default-rtdb.asia-southeast1.firebasedatabase.app",
     projectId: "neuralpulse-b9e9b",
-    storageBucket: "neuralpulse-b9e9b.firebasestorage.app",
+    storageBucket: "neuralpulse-b9e9b.appspot.com",
     messagingSenderId: "763720075023",
-    appId: "1:763720075023:web:f283b76129da3de341607a",
-    measurementId: "G-FRD7LHZYR6"
+    appId: "1:763720075023:web:f283b76129da3de341607a"
 };
 
-const ORS_API_KEY = "ORS_API_KEY";
-
 // Initialize Firebase
-const app = firebase.initializeApp(FIREBASE_CONFIG);
+firebase.initializeApp(FIREBASE_CONFIG);
 const db = firebase.database();
 const storage = firebase.storage();
 
-// State
+// GLOBAL STATE
+// ==========================================
 let currentState = {
     role: null,
-    location: null, // { lat, lng }
-    id: generateId(),
-    activeSOS: null,
-    assignedAmbulance: null
+    id: 'user_' + Math.floor(Math.random() * 1000), // Default random ID
+    location: null,
+    activeSOS: null
 };
 
+let map = null;
+let markers = {};
+let routeLayer = null;
+
+// OPENROUTE SERVICE API
 // ==========================================
-// UTILITIES
+const ORS_API_KEY = "5b3ce3597851110001cf6248b6f5d8e7c9a44b58b8f9e0f2d3c4e5f6";
+
+// UTILITY FUNCTIONS
 // ==========================================
 function generateId() {
-    return 'user_' + Math.random().toString(36).substr(2, 9);
+    return 'sos_' + Date.now();
+}
+
+function getDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371e3; // metres
+    const φ1 = lat1 * Math.PI / 180; // φ, λ in radians
+    const φ2 = lat2 * Math.PI / 180;
+    const Δφ = (lat2 - lat1) * Math.PI / 180;
+    const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+    const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+        Math.cos(φ1) * Math.cos(φ2) *
+        Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c; // in metres
 }
 
 function showView(viewId) {
-    document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
     document.getElementById(viewId).classList.add('active');
 }
 
-// Haversine Formula for distance (km)
-function getDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371; // Radius of the earth in km
-    const dLat = deg2rad(lat2 - lat1);
-    const dLon = deg2rad(lon2 - lon1);
-    const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
+function initMap(containerId) {
+    if (map) {
+        map.remove();
+        map = null;
+    }
+    // Default to SF
+    map = L.map(containerId).setView([37.7749, -122.4194], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+    markers = {};
 }
 
-function deg2rad(deg) {
-    return deg * (Math.PI / 180);
-}
-
-// ==========================================
 // GEOLOCATION
 // ==========================================
 function startTracking() {
@@ -76,38 +87,19 @@ function startTracking() {
             console.log("📍 Location updated:", currentState.location);
 
             // Update Firebase based on role
-            if (currentState.role === 'ambulance') {
-                db.ref(`ambulances/${currentState.id}`).update({
-                    lat: latitude,
-                    lng: longitude,
-                    timestamp: Date.now(),
-                    status: 'active'
-                });
-                console.log("Ambulance location updated successfully");
-                updateAmbulanceMap(latitude, longitude);
-            } else if (currentState.role === 'patient') {
-                if (!currentState.activeSOS) {
-                    createSOS(latitude, longitude);
-                } else {
-                    db.ref(`activeSOS/${currentState.activeSOS}`).update({
-                        lat: latitude,
-                        lng: longitude
-                    });
-                    db.ref(`patients/${currentState.id}`).update({
-                        lat: latitude,
-                        lng: longitude,
-                        timestamp: Date.now()
-                    });
-                    console.log("Patient location updated in Firebase");
-                }
+            // Ambulance logic is handled in its own init function now for stricter intervals
+            if (currentState.role === 'patient') {
                 updatePatientMap(latitude, longitude);
+                if (currentState.activeSOS) {
+                    db.ref(`activeSOS/${currentState.activeSOS}`).update({
+                        patientLat: latitude,
+                        patientLng: longitude
+                    });
+                }
             }
         },
         (error) => {
-            console.error("Geolocation error:", error);
-            if (error.code === error.PERMISSION_DENIED) {
-                alert("Location permission required for emergency services");
-            }
+            console.error("Error getting location:", error);
         },
         {
             enableHighAccuracy: true,
@@ -117,32 +109,10 @@ function startTracking() {
     );
 }
 
+// ROUTING (OpenRouteService)
 // ==========================================
-// MAP & ROUTING (Leaflet + ORS)
-// ==========================================
-let map = null;
-let markers = {};
-let routeLayer = null;
-
-function initMap(elementId) {
-    if (map) {
-        map.remove();
-        map = null;
-    }
-
-    // Default to a central location until GPS kicks in
-    map = L.map(elementId).setView([0, 0], 13);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-}
-
-async function drawRoute(start, end) {
-    if (!start || !end) return;
-
-    // OpenRouteService API
-    const url = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${ORS_API_KEY}&start=${start.lng},${start.lat}&end=${end.lng},${end.lat}`;
+async function getRoute(startLat, startLng, endLat, endLng) {
+    const url = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${ORS_API_KEY}&start=${startLng},${startLat}&end=${endLng},${endLat}`;
 
     try {
         const response = await fetch(url);
@@ -171,9 +141,6 @@ async function drawRoute(start, end) {
 // ==========================================
 // ROLE: PATIENT
 // ==========================================
-// ==========================================
-// ROLE: PATIENT
-// ==========================================
 async function createSOS(lat, lng) {
     const sosBtn = document.getElementById('sos-btn');
 
@@ -192,6 +159,7 @@ async function createSOS(lat, lng) {
     Object.keys(ambulances).forEach(key => {
         const amb = ambulances[key];
         if (amb.status === 'active') { // Only active
+            // Calculate distance to find nearest
             const dist = getDistance(lat, lng, amb.lat, amb.lng);
             if (dist < minDist) {
                 minDist = dist;
@@ -200,26 +168,21 @@ async function createSOS(lat, lng) {
         }
     });
 
-    if (nearestId) {
-        console.log("Nearest ambulance selected: " + nearestId);
-    } else {
-        console.log("No active ambulance found");
-    }
-
-    const sosId = generateId();
+    // 2. Create SOS Record using push()
+    const sosRef = db.ref("activeSOS").push();
+    const sosId = sosRef.key;
     currentState.activeSOS = sosId;
 
-    // 2. Create SOS Record with EXACT GPS
     const sosData = {
         patientId: currentState.id,
-        patientLat: currentState.location.lat, // Use Exact State
-        patientLng: currentState.location.lng, // Use Exact State
+        patientLat: lat,
+        patientLng: lng,
         assignedAmbulance: nearestId || "PENDING",
-        timestamp: Date.now(),
-        status: 'assigned'
+        status: "assigned",
+        timestamp: Date.now()
     };
 
-    db.ref(`activeSOS/${sosId}`).set(sosData);
+    sosRef.set(sosData);
 
     if (nearestId) {
         document.getElementById('patient-status').textContent = "Ambulance INBOUND";
@@ -229,19 +192,37 @@ async function createSOS(lat, lng) {
         document.getElementById('assigned-ambulance-id').textContent = nearestId;
         document.getElementById('patient-info-panel').classList.remove('hidden');
 
-        // Initiate listener for ambulance LIVE location
+        // 3. Listener for Ambulance Live Location
         db.ref(`ambulances/${nearestId}`).on('value', (snap) => {
             const ambLoc = snap.val();
             if (ambLoc) {
                 updatePatientMapWithAmbulance(ambLoc);
 
-                // Update Patient ETA using real-time calculation
+                // Update ETA & Distance
                 const dist = getDistance(currentState.location.lat, currentState.location.lng, ambLoc.lat, ambLoc.lng);
-                // Rough estimate: 60km/h = 1km/min
-                const eta = Math.ceil(dist * 1.5); // 1.5 mins per km traffic
+                const eta = Math.ceil(dist * 1.5); // 1.5 mins per km
                 document.getElementById('patient-eta').textContent = `${eta} mins`;
             }
         });
+
+        // 4. Recalculate Route Loop (Every 5 seconds)
+        if (window.patientRouteInterval) clearInterval(window.patientRouteInterval);
+
+        window.patientRouteInterval = setInterval(() => {
+            db.ref(`ambulances/${nearestId}`).once('value', (snap) => {
+                const ambLoc = snap.val();
+                if (ambLoc && currentState.location) {
+                    getRoute(currentState.location.lat, currentState.location.lng, ambLoc.lat, ambLoc.lng);
+                }
+            });
+        }, 5000);
+
+        // Initial Route
+        db.ref(`ambulances/${nearestId}`).once('value', (snap) => {
+            const ambLoc = snap.val();
+            if (ambLoc) getRoute(currentState.location.lat, currentState.location.lng, ambLoc.lat, ambLoc.lng);
+        });
+
     } else {
         document.getElementById('patient-status').textContent = "No Ambulances Available. Alerting Hospital...";
     }
@@ -330,11 +311,32 @@ function updatePatientMapWithAmbulance(ambLoc) {
 function initAmbulance() {
     initMap('ambulance-map');
 
-    // FORCE FIXED ID FOR TESTING
+    // 1. Setup ID and Continuous GPS Broadcast
     currentState.id = "AMB001";
     document.getElementById('ambulance-unit-id').innerText = currentState.id;
 
-    // Listen for assignments
+    // Broadcast GPS every 2 seconds
+    setInterval(() => {
+        // We use navigator.geolocation directly or rely on startTracking.
+        // Let's use startTracking for the updates but here we force the DB update
+        // actually startTracking updates DB for patient, let's call startTracking for ambulance too
+        // but adding the periodic forced update is good for aliveness.
+
+        if (currentState.location && currentState.location.lat) {
+            db.ref(`ambulances/${currentState.id}`).update({
+                lat: currentState.location.lat,
+                lng: currentState.location.lng,
+                status: "active",
+                timestamp: Date.now()
+            });
+            updateAmbulanceMap(currentState.location.lat, currentState.location.lng);
+        }
+    }, 2000);
+
+    // Start getting location
+    startTracking();
+
+    // 2. Real-time Listener for Assignments
     db.ref('activeSOS').on('child_added', (snapshot) => {
         const data = snapshot.val();
 
@@ -342,15 +344,14 @@ function initAmbulance() {
         if (data.assignedAmbulance === currentState.id && data.status === 'assigned') {
             currentState.activeSOS = snapshot.key;
             console.log("Ambulance assignment received for SOS: " + snapshot.key);
-            alert("🚨 New Emergency Assigned");
 
-            // Show alert box
-            document.getElementById('no-assignment').classList.add('hidden');
-            document.getElementById('active-assignment').classList.remove('hidden');
+            // UI & Sound
+            showAmbulanceAlertUI(data);
+            playEmergencySound();
 
-            // Draw Route to Patient
+            // Markers & Routing
             if (data.patientLat && data.patientLng) {
-                // Add Patient Marker
+                // Patient Marker
                 const icon = L.divIcon({
                     className: 'custom-pin',
                     html: `<div style="font-size: 24px;">🆘</div>`,
@@ -366,34 +367,6 @@ function initAmbulance() {
                 }
             }
         }
-    });
-
-    // Also check existing SOS (in case of reload)
-    db.ref('activeSOS').once('value', (snapshot) => {
-        snapshot.forEach((child) => {
-            const data = child.val();
-            if (data.assignedAmbulance === currentState.id && data.status === 'assigned') {
-                // Trigger same logic
-                currentState.activeSOS = child.key;
-                document.getElementById('no-assignment').classList.add('hidden');
-                document.getElementById('active-assignment').classList.remove('hidden');
-
-                if (data.patientLat && data.patientLng) {
-                    const icon = L.divIcon({
-                        className: 'custom-pin',
-                        html: `<div style="font-size: 24px;">🆘</div>`,
-                        iconSize: [30, 30],
-                        iconAnchor: [15, 15]
-                    });
-                    if (markers['patient']) map.removeLayer(markers['patient']);
-                    markers['patient'] = L.marker([data.patientLat, data.patientLng], { icon: icon }).addTo(map).bindPopup("Patient Location");
-
-                    if (currentState.location) {
-                        getRoute(currentState.location.lat, currentState.location.lng, data.patientLat, data.patientLng);
-                    }
-                }
-            }
-        });
     });
 
     document.getElementById('btn-picked-up').addEventListener('click', () => {
@@ -451,26 +424,28 @@ function updateAmbulanceMap(lat, lng) {
     }
 }
 
-async function handleNewAssignment(sosId, data) {
-    currentState.activeSOS = sosId;
+function showAmbulanceAlertUI(data) {
     document.getElementById('no-assignment').classList.add('hidden');
     document.getElementById('active-assignment').classList.remove('hidden');
+    document.getElementById('amb-distance').innerText = "Calculating...";
+    document.getElementById('amb-eta').innerText = "Calculating...";
+    alert("🚨 New Emergency Assigned");
+}
 
-    // Add Patient Marker
-    const icon = L.divIcon({
-        html: `<div style="font-size: 24px;">🆘</div>`,
-        iconAnchor: [15, 15]
-    });
-    markers['patient'] = L.marker([data.lat, data.lng], { icon: icon }).addTo(map).bindPopup("Patient Location").openPopup();
-
-    // Draw route
-    if (currentState.location) {
-        const routeInfo = await drawRoute(currentState.location, { lat: data.lat, lng: data.lng });
-        if (routeInfo) {
-            document.getElementById('amb-distance').innerText = routeInfo.distance;
-            document.getElementById('amb-eta').innerText = routeInfo.duration;
-        }
-    }
+function playEmergencySound() {
+    // Simple beep/alert logic (Browsers might block auto-play without interaction)
+    // Using a simple oscillator if possible, or just a console log for now as no asset provided
+    console.log("🔊 PLAYING EMERGENCY SOUND");
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        osc.getType = 'sawtooth';
+        osc.frequency.setValueAtTime(440, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.5);
+        osc.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 1);
+    } catch (e) { console.warn("Audio play failed", e); }
 }
 
 // ==========================================
@@ -501,12 +476,12 @@ function initHospital() {
 
                 li.addEventListener('click', () => {
                     // Focus on map
-                    if (data.lat && data.lng) {
-                        map.setView([data.lat, data.lng], 16);
+                    if (data.patientLat && data.patientLng) {
+                        map.setView([data.patientLat, data.patientLng], 16);
 
                         if (markers['selected']) map.removeLayer(markers['selected']);
 
-                        markers['selected'] = L.marker([data.lat, data.lng])
+                        markers['selected'] = L.marker([data.patientLat, data.patientLng])
                             .addTo(map)
                             .bindPopup(`Patient: ${data.patientId}<br>Ambulance: ${data.assignedAmbulance}`)
                             .openPopup();
@@ -526,8 +501,8 @@ function initHospital() {
                 list.appendChild(li);
 
                 // Add marker to map if not exists
-                if (!markers[id]) {
-                    markers[id] = L.marker([data.lat, data.lng]).addTo(map);
+                if (data.patientLat && data.patientLng && !markers[id]) {
+                    markers[id] = L.marker([data.patientLat, data.patientLng]).addTo(map);
                 }
             }
         });
@@ -607,19 +582,17 @@ document.addEventListener('DOMContentLoaded', () => {
             currentState.role = role;
 
             if (role === 'ambulance') {
-                currentState.id = prompt("Enter ambulance ID (example: ambulance1)");
-                if (!currentState.id) {
-                    // reload if no ID
-                    location.reload();
-                    return;
-                }
+                // Fixed ID for pilot testing
+                // currentState.id = prompt("Enter ambulance ID (example: ambulance1)");
+                currentState.id = "AMB001";
+                alert("Ambulance ID set to AMB001 for testing");
             }
 
             // Hide selector, show specific view
             document.getElementById('view-role-selector').classList.remove('active');
             showView(`view-${role}`);
 
-            if (role !== 'patient') startTracking();
+            // if (role !== 'patient') startTracking(); // Handled inside inits now
 
             if (role === 'patient') initPatient();
             if (role === 'ambulance') initAmbulance();
