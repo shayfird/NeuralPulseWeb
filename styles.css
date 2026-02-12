@@ -916,3 +916,212 @@ body {
     align-items: center;
     justify-content: center;
 }
+
+/* Futuristic Alert System */
+.emergency-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    /* Dim overlay */
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    transition: opacity 0.3s ease;
+}
+
+.glass-alert-panel {
+    width: 90%;
+    max-width: 500px;
+    background: rgba(20, 20, 35, 0.85);
+    border: 1px solid rgba(255, 59, 48, 0.3);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 0 50px rgba(255, 59, 48, 0.2);
+    text-align: center;
+    position: relative;
+    animation: slideInDown 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.neon-border {
+    box-shadow: 0 0 15px rgba(255, 59, 48, 0.5), inset 0 0 20px rgba(255, 59, 48, 0.1);
+}
+
+.pulse-animation {
+    animation: pulse-red 2s infinite;
+}
+
+@keyframes pulse-red {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 20px rgba(255, 59, 48, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 59, 48, 0);
+    }
+}
+
+@keyframes slideInDown {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.alert-header {
+    margin-bottom: 25px;
+}
+
+.alert-icon {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    animation: bounce 1s infinite;
+}
+
+.alert-header h2 {
+    color: #ff3b30;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(255, 59, 48, 0.5);
+    margin: 0;
+}
+
+.alert-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.data-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.data-row .label {
+    color: #888;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+}
+
+.data-row .value {
+    color: #fff;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.text-red {
+    color: #ff3b30 !important;
+}
+
+.full-width {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    background: linear-gradient(135deg, #ff3b30 0%, #ff9500 100%);
+    border: none;
+    box-shadow: 0 5px 15px rgba(255, 59, 48, 0.4);
+}
+
+.full-width:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 59, 48, 0.6);
+}
+
+.glow-effect:active {
+    box-shadow: 0 0 20px rgba(255, 59, 48, 0.8);
+    transform: scale(0.98);
+}
+
+/* Compact Badge */
+.compact-status-badge {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(10, 10, 10, 0.9);
+    border: 1px solid #30d158;
+    padding: 10px 20px;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+    animation: slideInDown 0.5s ease;
+}
+
+.badge-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pulsing-dot {
+    width: 10px;
+    height: 10px;
+    background: #30d158;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #30d158;
+    animation: pulse-green 1.5s infinite;
+}
+
+@keyframes pulse-green {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(48, 209, 88, 0.7);
+    }
+
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(48, 209, 88, 0);
+    }
+
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(48, 209, 88, 0);
+    }
+}
+
+.status-text {
+    color: #30d158;
+    font-weight: bold;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+.btn-micro {
+    padding: 5px 15px;
+    font-size: 0.8rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-micro:hover {
+    background: #fff;
+    color: #000;
+}

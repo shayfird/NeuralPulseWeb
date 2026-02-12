@@ -317,11 +317,6 @@ function initAmbulance() {
 
     // Broadcast GPS every 2 seconds
     setInterval(() => {
-        // We use navigator.geolocation directly or rely on startTracking.
-        // Let's use startTracking for the updates but here we force the DB update
-        // actually startTracking updates DB for patient, let's call startTracking for ambulance too
-        // but adding the periodic forced update is good for aliveness.
-
         if (currentState.location && currentState.location.lat) {
             db.ref(`ambulances/${currentState.id}`).update({
                 lat: currentState.location.lat,
@@ -337,17 +332,20 @@ function initAmbulance() {
     startTracking();
 
     // 2. Real-time Listener for Assignments
+    // Logic: Only show ALERT if specific assignment comes in as NEW
+    const startListenTime = Date.now();
+
     db.ref('activeSOS').on('child_added', (snapshot) => {
         const data = snapshot.val();
 
         // Strict check for assignment
         if (data.assignedAmbulance === currentState.id && data.status === 'assigned') {
+
+            // Check if this is a NEW event or pre-existing
+            const isNewEvent = data.timestamp > startListenTime;
+
             currentState.activeSOS = snapshot.key;
             console.log("Ambulance assignment received for SOS: " + snapshot.key);
-
-            // UI & Sound
-            showAmbulanceAlertUI(data);
-            playEmergencySound();
 
             // Markers & Routing
             if (data.patientLat && data.patientLng) {
@@ -363,51 +361,57 @@ function initAmbulance() {
 
                 // Route
                 if (currentState.location) {
-                    getRoute(currentState.location.lat, currentState.location.lng, data.patientLat, data.patientLng);
+                    getRoute(currentState.location.lat, currentState.location.lng, data.patientLat, data.patientLng).then(r => {
+                        // Update Alert UI if visible
+                        if (r) {
+                            document.getElementById('alert-distance').innerText = r.distance;
+                            document.getElementById('alert-eta').innerText = r.duration;
+                        }
+                    });
                 }
+            }
+
+            if (isNewEvent) {
+                // Show Full Screen Alert
+                showAmbulanceAlertUI(data);
+                playEmergencySound();
+            } else {
+                // Silently activate Badge
+                showCompactBadge();
             }
         }
     });
 
-    document.getElementById('btn-picked-up').addEventListener('click', () => {
-        // Logic for picking up and routing to hospital
-        if (!currentState.activeSOS) return;
-
-        const btn = document.getElementById('btn-picked-up');
-        btn.innerText = "Rerouting to Hospital...";
-        btn.disabled = true;
-
-        db.ref(`activeSOS/${currentState.activeSOS}`).update({
-            status: 'picked_up'
+    // Accept Button Logic
+    const acceptBtn = document.getElementById('btn-accept-emergency');
+    if (acceptBtn) {
+        acceptBtn.addEventListener('click', () => {
+            // Hide Alert, Show Badge
+            document.getElementById('emergency-overlay').classList.add('hidden');
+            showCompactBadge();
         });
+    }
 
-        // Find nearest Hospital (Hardcoded for demo, normally would search DB)
-        const hospitalLoc = { lat: 37.7749, lng: -122.4194 }; // Example: SF
-        // Ideally use current location to find real nearest hospital using logic similar to ambulance search
+    // Complete/Arrived Button Logic (in badge)
+    const completeBtn = document.getElementById('btn-complete-job');
+    if (completeBtn) {
+        completeBtn.addEventListener('click', () => {
+            if (!currentState.activeSOS) return;
 
-        // Mock Hospital Location relative to current location for demo purposes so it's visible on map
-        if (currentState.location) {
-            const mockHospital = {
-                lat: currentState.location.lat + 0.02,
-                lng: currentState.location.lng + 0.02
-            };
-
-            drawRoute(currentState.location, mockHospital).then(info => {
-                if (info) {
-                    document.getElementById('amb-distance').innerText = info.distance + " (to Hospital)";
-                    document.getElementById('amb-eta').innerText = info.duration;
-                }
-            });
-
-            if (!markers['hospital']) {
-                const icon = L.divIcon({
-                    html: `<div style="font-size: 24px;">🏥</div>`,
-                    iconAnchor: [15, 15]
+            if (confirm("Mark Emergency as Completed?")) {
+                db.ref(`activeSOS/${currentState.activeSOS}`).update({
+                    status: 'picked_up'
                 });
-                markers['hospital'] = L.marker([mockHospital.lat, mockHospital.lng], { icon: icon }).addTo(map).bindPopup("Destination Hospital").openPopup();
+
+                // Reset UI
+                document.getElementById('compact-status-badge').classList.add('hidden');
+                if (markers['patient']) map.removeLayer(markers['patient']);
+                if (routeLayer) map.removeLayer(routeLayer);
+                currentState.activeSOS = null;
+                alert("Status Updated: Patient Picked Up");
             }
-        }
-    });
+        });
+    }
 }
 
 function updateAmbulanceMap(lat, lng) {
@@ -425,26 +429,41 @@ function updateAmbulanceMap(lat, lng) {
 }
 
 function showAmbulanceAlertUI(data) {
-    document.getElementById('no-assignment').classList.add('hidden');
-    document.getElementById('active-assignment').classList.remove('hidden');
-    document.getElementById('amb-distance').innerText = "Calculating...";
-    document.getElementById('amb-eta').innerText = "Calculating...";
-    alert("🚨 New Emergency Assigned");
+    // Populate Data
+    document.getElementById('alert-coords').innerText = `${data.patientLat.toFixed(4)}, ${data.patientLng.toFixed(4)}`;
+    document.getElementById('alert-distance').innerText = "Calculating...";
+    document.getElementById('alert-eta').innerText = "Calculating...";
+
+    // Show Overlay
+    document.getElementById('emergency-overlay').classList.remove('hidden');
+}
+
+function showCompactBadge() {
+    document.getElementById('compact-status-badge').classList.remove('hidden');
 }
 
 function playEmergencySound() {
-    // Simple beep/alert logic (Browsers might block auto-play without interaction)
-    // Using a simple oscillator if possible, or just a console log for now as no asset provided
     console.log("🔊 PLAYING EMERGENCY SOUND");
     try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = ctx.createOscillator();
-        osc.getType = 'sawtooth';
+        const gain = ctx.createGain();
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.getType = 'square';
         osc.frequency.setValueAtTime(440, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.5);
-        osc.connect(ctx.destination);
+        osc.frequency.linearRampToValueAtTime(880, ctx.currentTime + 0.1);
+        osc.frequency.linearRampToValueAtTime(440, ctx.currentTime + 0.2);
+        osc.frequency.linearRampToValueAtTime(880, ctx.currentTime + 0.3);
+        osc.frequency.linearRampToValueAtTime(440, ctx.currentTime + 0.4);
+
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+
         osc.start();
-        osc.stop(ctx.currentTime + 1);
+        osc.stop(ctx.currentTime + 0.5);
     } catch (e) { console.warn("Audio play failed", e); }
 }
 

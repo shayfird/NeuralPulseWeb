@@ -137,27 +137,64 @@
 
         <!-- Ambulance View -->
         <section id="view-ambulance" class="view">
-            <div id="ambulance-map" class="full-map"></div>
-
-            <div class="control-panel glass">
-                <div class="panel-header">
-                    <h3>Ambulance Unit <span id="ambulance-unit-id">#001</span></h3>
-                    <div class="status-indicator online"></div>
-                </div>
-
-                <div id="no-assignment" class="status-message">
-                    <p>Scanning for emergencies...</p>
-                </div>
-
-                <div id="active-assignment" class="hidden">
-                    <div class="alert-box">
-                        <h4>🚨 NEW EMERGENCY</h4>
-                        <p>Patient distance: <span id="amb-distance">--</span></p>
-                        <p>ETA: <span id="amb-eta">--</span></p>
+            <!-- New Futuristic Alert System -->
+            <div id="emergency-overlay" class="emergency-overlay hidden">
+                <div class="glass-alert-panel neon-border pulse-animation">
+                    <div class="alert-header">
+                        <div class="alert-icon">🚨</div>
+                        <h2>EMERGENCY DISPATCH</h2>
                     </div>
-                    <button id="btn-picked-up" class="action-btn primary">Has Picked Up Patient</button>
+                    <div class="alert-content">
+                        <div class="data-row">
+                            <span class="label">LOCATION</span>
+                            <span class="value" id="alert-coords">--</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="label">DISTANCE</span>
+                            <span class="value" id="alert-distance">Calculating...</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="label">ETA</span>
+                            <span class="value text-red" id="alert-eta">Calculating...</span>
+                        </div>
+                    </div>
+                    <button id="btn-accept-emergency" class="btn-primary full-width glow-effect">ACCEPT
+                        EMERGENCY</button>
                 </div>
             </div>
+
+            <!-- Compact Status Badge (Top Center) -->
+            <div id="compact-status-badge" class="compact-status-badge hidden">
+                <div class="badge-content">
+                    <span class="pulsing-dot"></span>
+                    <span class="status-text">ACTIVE EMERGENCY – EN ROUTE</span>
+                </div>
+                <!-- Optional: Complete Job button if needed here, but keeping map interaction clean -->
+                <button id="btn-complete-job" class="btn-micro">ARRIVED</button>
+            </div>
+
+            <div id="ambulance-map" class="full-map"></div>
+        </section>
+
+        <div class="control-panel glass">
+            <div class="panel-header">
+                <h3>Ambulance Unit <span id="ambulance-unit-id">#001</span></h3>
+                <div class="status-indicator online"></div>
+            </div>
+
+            <div id="no-assignment" class="status-message">
+                <p>Scanning for emergencies...</p>
+            </div>
+
+            <div id="active-assignment" class="hidden">
+                <div class="alert-box">
+                    <h4>🚨 NEW EMERGENCY</h4>
+                    <p>Patient distance: <span id="amb-distance">--</span></p>
+                    <p>ETA: <span id="amb-eta">--</span></p>
+                </div>
+                <button id="btn-picked-up" class="action-btn primary">Has Picked Up Patient</button>
+            </div>
+        </div>
         </section>
 
         <!-- Hospital View -->
