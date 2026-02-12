@@ -370,96 +370,315 @@ body {
     }
 }
 
-/* Patient View */
+/* =========================================
+   SCIFI PATIENT VIEW
+   ========================================= */
 #view-patient {
-    background: radial-gradient(circle at top right, rgba(255, 59, 48, 0.2), transparent);
+    background-color: #050b14;
+    background-image:
+        radial-gradient(circle at 50% 0%, #1a2a4a 0%, transparent 60%),
+        radial-gradient(circle at 85% 30%, rgba(76, 50, 255, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 15% 70%, rgba(255, 59, 48, 0.1) 0%, transparent 40%),
+        radial-gradient(1px 1px at 10% 10%, #fff, transparent),
+        radial-gradient(1px 1px at 80% 40%, #fff, transparent);
+    background-size: 100% 100%, 100% 100%, 100% 100%, 300px 300px, 550px 550px;
+
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* justify-content: center; */
-    /* Changed deployment to allow scrolling/flex layout properly */
-    padding-top: 80px;
+    justify-content: center;
+    height: 100vh;
+    overflow: hidden;
+    color: white;
+    font-family: 'Inter', sans-serif;
 }
 
 #view-patient.active {
     display: flex;
 }
 
-.top-bar {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    right: 20px;
-    height: 60px;
-    border-radius: 30px;
+.patient-layout {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    padding: 0 2rem;
-    z-index: 100;
+    height: 100%;
+    padding: 2rem 1rem;
+    position: relative;
+    width: 100%;
+    max-width: 500px;
 }
 
-.sos-container {
-    margin-top: 10vh;
-    text-align: center;
-    color: var(--text-color);
+/* Floating Status Panel */
+.patient-status-panel {
+    background: rgba(13, 24, 48, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 40px;
+    padding: 0.75rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    margin-top: 2rem;
+    z-index: 10;
 }
 
-.sos-button {
-    width: 250px;
-    height: 250px;
+.status-indicator-dot {
+    width: 10px;
+    height: 10px;
+    background-color: #ff3b30;
+    /* Default Standby Red */
     border-radius: 50%;
-    background: linear-gradient(135deg, #ff3b30, #ff9f0a);
-    border: none;
+    box-shadow: 0 0 10px #ff3b30;
+    animation: blink 2s infinite;
+}
+
+.patient-status-panel h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+/* Status Text Colors handled by JS classes on the H2 */
+#patient-status.warning {
+    color: #ff9f0a;
+    text-shadow: 0 0 10px rgba(255, 159, 10, 0.5);
+}
+
+#patient-status.success {
+    color: #30d158;
+    text-shadow: 0 0 10px rgba(48, 209, 88, 0.5);
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* SOS Action Area */
+.sos-action-area {
+    position: relative;
+    width: 280px;
+    height: 280px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 2rem 0;
+}
+
+.sci-fi-sos-btn {
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #ff3b30, #9e0b0b);
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    box-shadow:
+        0 0 30px rgba(255, 59, 48, 0.4),
+        inset 0 0 20px rgba(0, 0, 0, 0.5);
     color: white;
     font-size: 3rem;
     font-weight: 800;
-    box-shadow: 0 10px 40px rgba(255, 59, 48, 0.4);
     cursor: pointer;
-    transition: transform 0.2s active;
-    animation: breathing 4s infinite ease-in-out;
+    position: relative;
+    z-index: 5;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.sos-button:active {
+.sci-fi-sos-btn:active {
     transform: scale(0.95);
 }
 
-@keyframes breathing {
-
-    0%,
-    100% {
-        transform: scale(1);
-    }
-
-    50% {
-        transform: scale(1.05);
-    }
+.sci-fi-sos-btn.active {
+    background: radial-gradient(circle at 30% 30%, #30d158, #0b9e25);
+    /* Green on active */
+    box-shadow: 0 0 50px rgba(48, 209, 88, 0.6);
 }
 
 .sos-hint {
-    margin-top: 1.5rem;
-    opacity: 0.7;
-    font-size: 1.1rem;
+    position: absolute;
+    bottom: -40px;
+    opacity: 0.6;
+    font-size: 0.9rem;
+    width: 100%;
+    text-align: center;
 }
 
+/* Pulse Rings */
+.sos-pulse-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 2px solid rgba(255, 59, 48, 0.3);
+    box-shadow: 0 0 20px rgba(255, 59, 48, 0.2);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.ring-1 {
+    width: 100%;
+    height: 100%;
+    animation: pulseRing 3s infinite;
+}
+
+.ring-2 {
+    width: 100%;
+    height: 100%;
+    animation: pulseRing 3s infinite 1s;
+}
+
+.ring-3 {
+    width: 100%;
+    height: 100%;
+    animation: pulseRing 3s infinite 2s;
+}
+
+@keyframes pulseRing {
+    0% {
+        width: 220px;
+        height: 220px;
+        opacity: 0.8;
+        border-width: 4px;
+    }
+
+    100% {
+        width: 340px;
+        height: 340px;
+        opacity: 0;
+        border-width: 0px;
+    }
+}
+
+/* Info Panel (Future Glass Card) */
 .info-panel {
-    margin-top: 2rem;
-    width: 90%;
-    max-width: 500px;
-    border-radius: var(--radius);
+    width: 100%;
+    background: rgba(13, 24, 48, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
     padding: 1.5rem;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    margin-bottom: 2rem;
+    transform: translateY(0);
+    transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-.hidden {
+.info-panel.hidden {
     display: none !important;
+    /* Or use opacity/transform for animation if JS didn't use display:none */
+}
+
+.panel-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 1rem;
+}
+
+.panel-header-row h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.live-tag {
+    background: #ff3b30;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    box-shadow: 0 0 10px rgba(255, 59, 48, 0.5);
+    animation: blink 1s infinite;
+}
+
+.ambulance-stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-box {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 1rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-label {
+    font-size: 0.7rem;
+    opacity: 0.6;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+}
+
+.stat-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    font-family: monospace;
+}
+
+.stat-value.highlight {
+    color: #30d158;
+    text-shadow: 0 0 10px rgba(48, 209, 88, 0.4);
+}
+
+.map-container-glass {
+    height: 180px;
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 1rem;
 }
 
 .map-preview {
-    height: 200px;
     width: 100%;
-    background: #e5e5ea;
-    border-radius: 12px;
-    margin: 1rem 0;
+    height: 100%;
+    background: #1c1c1e;
+}
+
+/* File Upload */
+.upload-btn-glass {
+    display: block;
+    width: 100%;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px dashed rgba(255, 255, 255, 0.3);
+    border-radius: 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+}
+
+.upload-btn-glass:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.file-name-glass {
+    display: block;
+    text-align: center;
+    font-size: 0.8rem;
+    opacity: 0.6;
+    margin-top: 0.5rem;
 }
 
 /* Ambulance View */

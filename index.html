@@ -83,31 +83,55 @@
 
         <!-- Patient View -->
         <section id="view-patient" class="view">
-            <div class="top-bar glass">
-                <h2>Patient Mode</h2>
-                <div class="status-badge" id="patient-status">Standby</div>
-            </div>
+            <div class="sci-fi-container patient-layout">
 
-            <div class="sos-container">
-                <button id="sos-btn" class="sos-button">
-                    <span>SOS</span>
-                </button>
-                <p class="sos-hint">Press for Emergency Assistance</p>
-            </div>
-
-            <div class="info-panel glass hidden" id="patient-info-panel">
-                <h3>Ambulance Assigned</h3>
-                <div class="ambulance-details">
-                    <p>ID: <span id="assigned-ambulance-id">--</span></p>
-                    <p>ETA: <span id="patient-eta">-- mins</span></p>
+                <!-- Status Notification (Floating Glass Panel) -->
+                <div class="patient-status-panel">
+                    <div class="status-indicator-dot"></div>
+                    <h2 id="patient-status">Standby</h2>
                 </div>
-                <div class="map-preview" id="patient-map"></div>
 
-                <div class="upload-section">
-                    <label for="medical-file" class="upload-btn">Upload Medical ID</label>
-                    <input type="file" id="medical-file" hidden>
-                    <span id="file-name">No file chosen</span>
+                <!-- SOS Button Area -->
+                <div class="sos-action-area">
+                    <div class="sos-pulse-ring ring-1"></div>
+                    <div class="sos-pulse-ring ring-2"></div>
+                    <div class="sos-pulse-ring ring-3"></div>
+                    <button id="sos-btn" class="sci-fi-sos-btn">
+                        <span>SOS</span>
+                    </button>
+                    <p class="sos-hint">Press for Emergency Assistance</p>
                 </div>
+
+                <!-- Info/Map Panel (Hidden initially) -->
+                <div class="info-panel sci-fi-card hidden" id="patient-info-panel">
+                    <div class="panel-header-row">
+                        <h3>Ambulance Assigned</h3>
+                        <div class="live-tag">LIVE</div>
+                    </div>
+
+                    <div class="ambulance-stat-grid">
+                        <div class="stat-box">
+                            <span class="stat-label">UNIT ID</span>
+                            <span class="stat-value" id="assigned-ambulance-id">--</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-label">ETA</span>
+                            <span class="stat-value highlight" id="patient-eta">--</span>
+                        </div>
+                    </div>
+
+                    <div class="map-container-glass">
+                        <div class="map-preview" id="patient-map"></div>
+                    </div>
+
+                    <div class="upload-section-glass">
+                        <label for="medical-file" class="upload-btn-glass"><i class="fas fa-file-medical"></i> Upload
+                            ID</label>
+                        <input type="file" id="medical-file" hidden>
+                        <span id="file-name" class="file-name-glass">No file chosen</span>
+                    </div>
+                </div>
+
             </div>
         </section>
 

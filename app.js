@@ -171,6 +171,9 @@ async function drawRoute(start, end) {
 // ==========================================
 // ROLE: PATIENT
 // ==========================================
+// ==========================================
+// ROLE: PATIENT
+// ==========================================
 async function createSOS(lat, lng) {
     const sosBtn = document.getElementById('sos-btn');
 
@@ -206,11 +209,11 @@ async function createSOS(lat, lng) {
     const sosId = generateId();
     currentState.activeSOS = sosId;
 
-    // 2. Create SOS Record
+    // 2. Create SOS Record with EXACT GPS
     const sosData = {
         patientId: currentState.id,
-        lat: lat,
-        lng: lng,
+        patientLat: currentState.location.lat, // Use Exact State
+        patientLng: currentState.location.lng, // Use Exact State
         assignedAmbulance: nearestId || "PENDING",
         timestamp: Date.now(),
         status: 'assigned'
@@ -226,13 +229,14 @@ async function createSOS(lat, lng) {
         document.getElementById('assigned-ambulance-id').textContent = nearestId;
         document.getElementById('patient-info-panel').classList.remove('hidden');
 
-        // Initiate listener for ambulance location
+        // Initiate listener for ambulance LIVE location
         db.ref(`ambulances/${nearestId}`).on('value', (snap) => {
             const ambLoc = snap.val();
             if (ambLoc) {
                 updatePatientMapWithAmbulance(ambLoc);
-                // Update Patient ETA
-                const dist = getDistance(lat, lng, ambLoc.lat, ambLoc.lng);
+
+                // Update Patient ETA using real-time calculation
+                const dist = getDistance(currentState.location.lat, currentState.location.lng, ambLoc.lat, ambLoc.lng);
                 // Rough estimate: 60km/h = 1km/min
                 const eta = Math.ceil(dist * 1.5); // 1.5 mins per km traffic
                 document.getElementById('patient-eta').textContent = `${eta} mins`;
@@ -250,7 +254,21 @@ function initPatient() {
 
     sosBtn.addEventListener('click', async () => {
         console.log("Patient GPS tracking started");
+        // Start tracking first, then sos will be called when location is found
         startTracking();
+
+        // Force immediate SOS if location already exists
+        if (currentState.location && currentState.location.lat) {
+            createSOS(currentState.location.lat, currentState.location.lng);
+        } else {
+            // Wait for first location update then trigger SOS
+            const checkLoc = setInterval(() => {
+                if (currentState.location && currentState.location.lat) {
+                    clearInterval(checkLoc);
+                    createSOS(currentState.location.lat, currentState.location.lng);
+                }
+            }, 1000);
+        }
     });
 
     fileInput.addEventListener('change', (e) => {
@@ -311,16 +329,42 @@ function updatePatientMapWithAmbulance(ambLoc) {
 // ==========================================
 function initAmbulance() {
     initMap('ambulance-map');
+
+    // FORCE FIXED ID FOR TESTING
+    currentState.id = "AMB001";
     document.getElementById('ambulance-unit-id').innerText = currentState.id;
 
     // Listen for assignments
     db.ref('activeSOS').on('child_added', (snapshot) => {
         const data = snapshot.val();
+
+        // Strict check for assignment
         if (data.assignedAmbulance === currentState.id && data.status === 'assigned') {
             currentState.activeSOS = snapshot.key;
-            console.log("Ambulance assignment received");
+            console.log("Ambulance assignment received for SOS: " + snapshot.key);
             alert("🚨 New Emergency Assigned");
-            handleNewAssignment(snapshot.key, data);
+
+            // Show alert box
+            document.getElementById('no-assignment').classList.add('hidden');
+            document.getElementById('active-assignment').classList.remove('hidden');
+
+            // Draw Route to Patient
+            if (data.patientLat && data.patientLng) {
+                // Add Patient Marker
+                const icon = L.divIcon({
+                    className: 'custom-pin',
+                    html: `<div style="font-size: 24px;">🆘</div>`,
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 15]
+                });
+                if (markers['patient']) map.removeLayer(markers['patient']);
+                markers['patient'] = L.marker([data.patientLat, data.patientLng], { icon: icon }).addTo(map).bindPopup("Patient Location");
+
+                // Route
+                if (currentState.location) {
+                    getRoute(currentState.location.lat, currentState.location.lng, data.patientLat, data.patientLng);
+                }
+            }
         }
     });
 
@@ -329,7 +373,25 @@ function initAmbulance() {
         snapshot.forEach((child) => {
             const data = child.val();
             if (data.assignedAmbulance === currentState.id && data.status === 'assigned') {
-                handleNewAssignment(child.key, data);
+                // Trigger same logic
+                currentState.activeSOS = child.key;
+                document.getElementById('no-assignment').classList.add('hidden');
+                document.getElementById('active-assignment').classList.remove('hidden');
+
+                if (data.patientLat && data.patientLng) {
+                    const icon = L.divIcon({
+                        className: 'custom-pin',
+                        html: `<div style="font-size: 24px;">🆘</div>`,
+                        iconSize: [30, 30],
+                        iconAnchor: [15, 15]
+                    });
+                    if (markers['patient']) map.removeLayer(markers['patient']);
+                    markers['patient'] = L.marker([data.patientLat, data.patientLng], { icon: icon }).addTo(map).bindPopup("Patient Location");
+
+                    if (currentState.location) {
+                        getRoute(currentState.location.lat, currentState.location.lng, data.patientLat, data.patientLng);
+                    }
+                }
             }
         });
     });
