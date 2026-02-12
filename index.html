@@ -11,6 +11,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
@@ -26,29 +29,64 @@
 
         <!-- Role Selector View -->
         <section id="view-role-selector" class="view active">
-            <div class="glass-panel center-panel">
+            <div class="center-panel">
                 <div class="logo-area">
                     <div class="pulse-circle"></div>
                     <h1>NeuralPulse</h1>
-                    <p>Advanced Emergency Response</p>
+                    <p>Smart Emergency Coordination Network</p>
                 </div>
                 <div class="role-grid">
-                    <button class="role-card" data-role="patient">
-                        <div class="icon">🚑</div>
-                        <span>Patient</span>
-                    </button>
-                    <button class="role-card" data-role="ambulance">
-                        <div class="icon">🏥</div>
-                        <span>Ambulance</span>
-                    </button>
-                    <button class="role-card" data-role="hospital">
-                        <div class="icon">⚕️</div>
-                        <span>Hospital</span>
-                    </button>
-                    <button class="role-card" data-role="traffic">
-                        <div class="icon">🚦</div>
-                        <span>Traffic Controller</span>
-                    </button>
+                    <div class="role-card" data-role="patient">
+                        <div class="icon-box">
+                            <i class="fas fa-user-injured"></i>
+                        </div>
+                        <div class="role-info">
+                            <div class="role-title">Patient</div>
+                            <div class="role-desc">Request emergency assistance</div>
+                        </div>
+                        <div class="role-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+
+                    <div class="role-card" data-role="ambulance">
+                        <div class="icon-box">
+                            <i class="fas fa-ambulance"></i>
+                        </div>
+                        <div class="role-info">
+                            <div class="role-title">Ambulance</div>
+                            <div class="role-desc">Respond to active emergencies</div>
+                        </div>
+                        <div class="role-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+
+                    <div class="role-card" data-role="hospital">
+                        <div class="icon-box">
+                            <i class="fas fa-hospital"></i>
+                        </div>
+                        <div class="role-info">
+                            <div class="role-title">Hospital</div>
+                            <div class="role-desc">Monitor incoming patients</div>
+                        </div>
+                        <div class="role-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+
+                    <div class="role-card" data-role="traffic">
+                        <div class="icon-box">
+                            <i class="fas fa-traffic-light"></i>
+                        </div>
+                        <div class="role-info">
+                            <div class="role-title">Traffic Control</div>
+                            <div class="role-desc">Manage signal priority</div>
+                        </div>
+                        <div class="role-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>

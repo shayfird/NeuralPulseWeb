@@ -8,9 +8,10 @@ const FIREBASE_CONFIG = {
     authDomain: "neuralpulse-b9e9b.firebaseapp.com",
     databaseURL: "https://neuralpulse-b9e9b-default-rtdb.asia-southeast1.firebasedatabase.app",
     projectId: "neuralpulse-b9e9b",
-    storageBucket: "neuralpulse-b9e9b.appspot.com",
+    storageBucket: "neuralpulse-b9e9b.firebasestorage.app",
     messagingSenderId: "763720075023",
-    appId: "1:763720075023:web:f283b76129da3de341607a"
+    appId: "1:763720075023:web:f283b76129da3de341607a",
+    measurementId: "G-FRD7LHZYR6"
 };
 
 const ORS_API_KEY = "ORS_API_KEY";
