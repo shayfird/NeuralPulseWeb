@@ -82,214 +82,292 @@ body {
     box-shadow: var(--shadow-lg);
 }
 
-/* Role Selector - Premium Redesign */
+/* Role Selector - Sci-Fi Space Redesign */
 #view-role-selector {
+    background-color: #050b14;
+    background-image:
+        radial-gradient(circle at 50% 0%, #1a2a4a 0%, transparent 60%),
+        radial-gradient(circle at 85% 30%, rgba(76, 50, 255, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 15% 70%, rgba(255, 59, 48, 0.1) 0%, transparent 40%),
+        radial-gradient(1px 1px at 10% 10%, #fff, transparent),
+        radial-gradient(1px 1px at 20% 20%, #fff, transparent),
+        radial-gradient(2px 2px at 30% 60%, rgba(255, 255, 255, 0.5), transparent),
+        radial-gradient(1px 1px at 80% 40%, #fff, transparent);
+    background-size: 100% 100%, 100% 100%, 100% 100%, 300px 300px, 450px 450px, 600px 600px, 550px 550px;
+
     display: flex;
     flex-direction: column;
-    padding: 2rem 1.5rem;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    overflow-y: auto;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+    font-family: 'Inter', sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-    #view-role-selector {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
+
+
 
 #view-role-selector.active {
     display: flex;
 }
 
-.center-panel {
-    text-align: center;
+.sci-fi-container {
     width: 100%;
-    max-width: 480px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 4rem 1.5rem 3rem;
+    max-width: 600px;
     margin: 0 auto;
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    padding: 0;
+    position: relative;
+    z-index: 2;
 }
 
-.logo-area {
-    margin-bottom: 3rem;
-    padding-top: 2rem;
+/* =========================================
+   HERO SECTION (Logo & Title)
+   ========================================= */
+.hero-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    margin-bottom: 2rem;
 }
 
-.logo-area h1 {
-    font-weight: 800;
-    font-size: 2.2rem;
-    letter-spacing: -0.02em;
-    background: linear-gradient(135deg, var(--text-color) 30%, #94a3b8 100%);
+/* Layered Logo Stack */
+.logo-stack {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    margin-bottom: 2.5rem;
+    perspective: 1000px;
+    transform-style: preserve-3d;
+    animation: floatStack 6s ease-in-out infinite;
+}
+
+@keyframes floatStack {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.layer {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 24px;
+    top: 0;
+    left: 0;
+    transition: all 0.5s ease-out;
+}
+
+/* Bottom Plate */
+.layer-1 {
+    background: linear-gradient(135deg, #0f2044, #050b14);
+    transform: translateY(20px) scale(0.9) rotateX(10deg);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    z-index: 1;
+}
+
+/* Middle Plate */
+.layer-2 {
+    background: linear-gradient(135deg, #162a5c, #0a1128);
+    transform: translateY(10px) scale(0.95) rotateX(10deg);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(100, 200, 255, 0.1);
+    z-index: 2;
+}
+
+/* Top Plate (Main) */
+.layer-3 {
+    background: radial-gradient(circle at top left, #234282, #0d1b36);
+    transform: translateY(0) scale(1) rotateX(10deg);
+    box-shadow:
+        0 10px 20px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        0 0 30px rgba(32, 100, 255, 0.2);
+    /* Blue Glow */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-icon {
+    font-size: 4rem;
+    color: white;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 40px rgba(0, 150, 255, 0.6);
+    background: linear-gradient(to bottom, #ffffff, #8ca6db);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    margin-bottom: 0.5rem;
 }
 
-.logo-area p {
-    font-size: 1rem;
-    opacity: 0.6;
+/* Title Typography */
+.title-group {
+    text-align: center;
+    position: relative;
+    z-index: 10;
+}
+
+.title-group h1 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 3rem;
+    color: #ffffff;
+    letter-spacing: -0.02em;
+    margin: 0;
+    text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.title-group p {
+    font-size: 0.95rem;
+    color: #8da2c0;
+    margin-top: 0.5rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
     font-weight: 500;
 }
 
-.pulse-circle {
-    width: 64px;
-    height: 64px;
-    background: linear-gradient(135deg, var(--accent-red), #ff6b6b);
-    border-radius: 50%;
-    margin: 0 auto 1.5rem;
-    box-shadow: 0 10px 30px rgba(255, 59, 48, 0.4);
-    position: relative;
+.title-underline {
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(to right, #00c6ff, #0072ff);
+    margin: 1.5rem auto 0;
+    border-radius: 2px;
+    box-shadow: 0 0 15px rgba(0, 114, 255, 0.6);
 }
 
-.pulse-circle::after {
+/* =========================================
+   BOTTOM SECTION (Role Cards)
+   ========================================= */
+.role-selector-area {
+    width: 100%;
+}
+
+.role-card-dock {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    /* 2x2 Grid for mobile */
+    gap: 1.5rem;
+    width: 100%;
+}
+
+/* Wrapper for Glow Effects */
+.role-card-glow-wrapper {
+    position: relative;
+    border-radius: 20px;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.role-card-glow-wrapper::before {
     content: '';
     position: absolute;
-    top: -4px;
-    right: -4px;
-    bottom: -4px;
-    left: -4px;
-    border-radius: 50%;
-    border: 2px solid rgba(255, 59, 48, 0.3);
-    animation: ripple 2s infinite cubic-bezier(0, 0, 0.2, 1);
+    bottom: -2px;
+    left: 10px;
+    right: 10px;
+    height: 10px;
+    background: var(--glow-color);
+    filter: blur(8px);
+    opacity: 0.6;
+    transition: opacity 0.3s;
+    z-index: 0;
 }
 
-@keyframes ripple {
-    0% {
-        transform: scale(1);
-        opacity: 1;
-    }
-
-    100% {
-        transform: scale(1.5);
-        opacity: 0;
-    }
+/* Interactive Hover State */
+.role-card-glow-wrapper:hover {
+    transform: translateY(-5px) scale(1.02);
 }
 
-.role-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-    margin-top: 1rem;
-    width: 100%;
+.role-card-glow-wrapper:hover::before {
+    opacity: 1;
+    filter: blur(12px);
 }
 
-.role-card {
-    background: rgba(255, 255, 255, 0.8);
+/* The Glass Card Itself */
+.sci-fi-card {
+    background: rgba(13, 24, 48, 0.6);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.6);
+
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 2px solid var(--glow-color);
+    /* The Neon Bar */
+
+    border-radius: 20px;
     padding: 1.5rem;
-    border-radius: 24px;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100px;
+
     display: flex;
-    flex-direction: row;
     align-items: center;
-    text-align: left;
-    width: 100%;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    justify-content: center;
+    text-align: center;
+
+    cursor: pointer;
     position: relative;
     overflow: hidden;
+    z-index: 1;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
-@media (prefers-color-scheme: dark) {
-    .role-card {
-        background: rgba(30, 41, 59, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+/* Shine Effect */
+.sci-fi-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40%;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.05), transparent);
+    pointer-events: none;
+}
+
+.sci-fi-card span {
+    color: #fff;
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.02em;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    z-index: 2;
+}
+
+/* Active/Pressed State */
+.sci-fi-card:active {
+    background: rgba(22, 40, 75, 0.8);
+    transform: translateY(1px);
+}
+
+/* Desktop Adjustment: 4 in a row */
+@media (min-width: 768px) {
+    .role-card-dock {
+        grid-template-columns: repeat(4, 1fr);
     }
-}
-
-.role-card:hover {
-    transform: translateY(-2px) scale(1.01);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    border-color: var(--accent-blue);
-}
-
-.role-card .icon-box {
-    width: 50px;
-    height: 50px;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    margin-right: 1.25rem;
-    flex-shrink: 0;
-}
-
-.role-card[data-role="patient"] .icon-box {
-    background: rgba(255, 59, 48, 0.1);
-    color: var(--accent-red);
-}
-
-.role-card[data-role="ambulance"] .icon-box {
-    background: rgba(52, 199, 89, 0.1);
-    color: var(--accent-green);
-}
-
-.role-card[data-role="hospital"] .icon-box {
-    background: rgba(0, 122, 255, 0.1);
-    color: var(--accent-blue);
-}
-
-.role-card[data-role="traffic"] .icon-box {
-    background: rgba(255, 204, 0, 0.1);
-    color: var(--accent-yellow);
-}
-
-.role-info {
-    flex: 1;
-}
-
-.role-title {
-    font-weight: 700;
-    font-size: 1.1rem;
-    margin-bottom: 0.25rem;
-    color: var(--text-color);
-}
-
-.role-desc {
-    font-size: 0.85rem;
-    opacity: 0.6;
-    font-weight: 400;
-}
-
-.role-arrow {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: rgba(0, 0, 0, 0.03);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-left: 1rem;
-    transition: transform 0.2s;
-}
-
-@media (prefers-color-scheme: dark) {
-    .role-arrow {
-        background: rgba(255, 255, 255, 0.1);
-    }
-}
-
-.role-card:hover .role-arrow {
-    transform: translateX(4px);
-    background: var(--accent-blue);
-    color: white;
-}
-
-.role-card:hover {
-    transform: translateY(-5px);
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.role-card .icon {
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
 }
 
 /* Patient View */
