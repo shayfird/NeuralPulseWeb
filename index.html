@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NeuralPulse</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <!-- App Container -->
+    <div id="app">
+
+        <!-- Role Selector View -->
+        <section id="view-role-selector" class="view active">
+            <div class="glass-panel center-panel">
+                <div class="logo-area">
+                    <div class="pulse-circle"></div>
+                    <h1>NeuralPulse</h1>
+                    <p>Advanced Emergency Response</p>
+                </div>
+                <div class="role-grid">
+                    <button class="role-card" data-role="patient">
+                        <div class="icon">🚑</div>
+                        <span>Patient</span>
+                    </button>
+                    <button class="role-card" data-role="ambulance">
+                        <div class="icon">🏥</div>
+                        <span>Ambulance</span>
+                    </button>
+                    <button class="role-card" data-role="hospital">
+                        <div class="icon">⚕️</div>
+                        <span>Hospital</span>
+                    </button>
+                    <button class="role-card" data-role="traffic">
+                        <div class="icon">🚦</div>
+                        <span>Traffic Controller</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Patient View -->
+        <section id="view-patient" class="view">
+            <div class="top-bar glass">
+                <h2>Patient Mode</h2>
+                <div class="status-badge" id="patient-status">Standby</div>
+            </div>
+
+            <div class="sos-container">
+                <button id="sos-btn" class="sos-button">
+                    <span>SOS</span>
+                </button>
+                <p class="sos-hint">Press for Emergency Assistance</p>
+            </div>
+
+            <div class="info-panel glass hidden" id="patient-info-panel">
+                <h3>Ambulance Assigned</h3>
+                <div class="ambulance-details">
+                    <p>ID: <span id="assigned-ambulance-id">--</span></p>
+                    <p>ETA: <span id="patient-eta">-- mins</span></p>
+                </div>
+                <div class="map-preview" id="patient-map"></div>
+
+                <div class="upload-section">
+                    <label for="medical-file" class="upload-btn">Upload Medical ID</label>
+                    <input type="file" id="medical-file" hidden>
+                    <span id="file-name">No file chosen</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Ambulance View -->
+        <section id="view-ambulance" class="view">
+            <div id="ambulance-map" class="full-map"></div>
+
+            <div class="control-panel glass">
+                <div class="panel-header">
+                    <h3>Ambulance Unit <span id="ambulance-unit-id">#001</span></h3>
+                    <div class="status-indicator online"></div>
+                </div>
+
+                <div id="no-assignment" class="status-message">
+                    <p>Scanning for emergencies...</p>
+                </div>
+
+                <div id="active-assignment" class="hidden">
+                    <div class="alert-box">
+                        <h4>🚨 NEW EMERGENCY</h4>
+                        <p>Patient distance: <span id="amb-distance">--</span></p>
+                        <p>ETA: <span id="amb-eta">--</span></p>
+                    </div>
+                    <button id="btn-picked-up" class="action-btn primary">Has Picked Up Patient</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Hospital View -->
+        <section id="view-hospital" class="view">
+            <div class="dashboard-layout">
+                <div class="sidebar glass">
+                    <h3>Incoming Alerts</h3>
+                    <ul id="hospital-alert-list">
+                        <!-- Alerts will be injected here -->
+                    </ul>
+                </div>
+                <div class="main-content">
+                    <div id="hospital-map" class="dashboard-map"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Traffic View -->
+        <section id="view-traffic" class="view">
+            <div class="traffic-dashboard glass">
+                <h2>Traffic Control Center</h2>
+
+                <div class="camera-feed">
+                    <div class="feed-placeholder">
+                        <p>YOLO Object Detection Feed</p>
+                        <div class="detection-box">Ambulance (98%)</div>
+                    </div>
+                </div>
+
+                <div class="signal-controls">
+                    <div class="signal-status">
+                        <span class="light red active"></span>
+                        <span class="light yellow"></span>
+                        <span class="light green"></span>
+                        <p>Signal ID: SIG-042</p>
+                    </div>
+                    <button id="btn-verify-ambulance" class="verify-btn">
+                        Verify Ambulance & Green Light
+                    </button>
+                </div>
+
+                <div class="audit-log">
+                    <h3>Audit Log</h3>
+                    <ul id="traffic-log">
+                        <!-- Logs -->
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- Firebase SDKs (Compat for simplicity in vanilla JS) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+
+    <!-- Main Logic -->
+    <script type="module" src="app.js"></script>
+</body>
+
+</html>
