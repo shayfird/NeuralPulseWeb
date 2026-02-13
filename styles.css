@@ -137,6 +137,333 @@ body {
     z-index: 2;
 }
 
+/* ==========================================
+   PATIENT TAB (Apple Liquid Glass Premium)
+   ========================================== */
+
+#view-patient {
+    display: flex;
+    /* Flex when active */
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    background: radial-gradient(circle at 50% 120%, #1a0b0b 0%, #000 60%);
+}
+
+.patient-container {
+    width: 100%;
+    height: 100%;
+    max-width: 480px;
+    /* Mobile constraint */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2rem 1.5rem 6rem 1.5rem;
+    /* Bottom padding for nav */
+    position: relative;
+    z-index: 10;
+}
+
+.spacer-top {
+    flex: 1;
+}
+
+/* Header & Status */
+.patient-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.patient-header h2 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+    letter-spacing: -0.5px;
+    margin: 0;
+}
+
+.status-badge {
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* SOS Button (Premium Liquid) */
+.sos-container {
+    position: relative;
+    width: 260px;
+    height: 260px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 2rem auto;
+}
+
+.sos-ring {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 59, 48, 0.2);
+    box-shadow: 0 0 30px rgba(255, 59, 48, 0.1);
+    animation: breathingRing 4s ease-in-out infinite;
+}
+
+.sos-glow {
+    position: absolute;
+    width: 80%;
+    height: 80%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 59, 48, 0.4) 0%, transparent 70%);
+    filter: blur(40px);
+    animation: pulseGlow 3s ease-in-out infinite;
+}
+
+.sos-button {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    border: none;
+
+    /* Complex Glass Gradient */
+    background: linear-gradient(145deg, rgba(255, 59, 48, 0.9), rgba(180, 20, 20, 0.95));
+
+    /* Frost Effect */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    /* Inner/Outer Shadows for 3D Depth */
+    box-shadow:
+        inset 0 2px 4px rgba(255, 255, 255, 0.3),
+        inset 0 -4px 10px rgba(0, 0, 0, 0.4),
+        0 20px 50px rgba(255, 59, 48, 0.5);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+    position: relative;
+    z-index: 20;
+    overflow: hidden;
+}
+
+/* Liquid Sheen Animation */
+.sos-button::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.2) 50%, transparent 60%);
+    transform: rotate(45deg);
+    animation: sheen 6s infinite;
+}
+
+.sos-text {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: white;
+    letter-spacing: -1px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    z-index: 2;
+}
+
+.sos-hint {
+    position: absolute;
+    bottom: -40px;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* Active State (Green) */
+.sos-button.active {
+    background: linear-gradient(145deg, #30d158, #20a040);
+    box-shadow:
+        inset 0 2px 4px rgba(255, 255, 255, 0.3),
+        inset 0 -4px 10px rgba(0, 0, 0, 0.4),
+        0 20px 50px rgba(48, 209, 88, 0.5);
+    transform: scale(0.96);
+}
+
+.sos-button.active~.sos-glow {
+    background: radial-gradient(circle, rgba(48, 209, 88, 0.4) 0%, transparent 70%);
+}
+
+.sos-button.active~.sos-ring {
+    border-color: rgba(48, 209, 88, 0.3);
+}
+
+/* Upload Button */
+.glass-pill-button {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 2rem;
+}
+
+.glass-pill-button:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+/* Notification Card */
+.glass-card {
+    position: absolute;
+    bottom: 340px;
+    /* Above map */
+    width: 90%;
+    max-width: 360px;
+    background: rgba(30, 30, 30, 0.75);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    border-radius: 24px;
+    z-index: 30;
+    transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.5s ease;
+    padding: 16px;
+}
+
+.glass-card.hidden {
+    transform: translateY(40px);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.glass-card-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.spinner-border {
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.text-content h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #30d158;
+    /* Green Success */
+}
+
+.text-content p {
+    margin: 4px 0 8px 0;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.meta-info {
+    display: flex;
+    gap: 12px;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.accent-text {
+    color: #fff;
+    font-weight: 500;
+}
+
+/* Map Container */
+.map-wrapper {
+    width: 100%;
+    height: 280px;
+    border-radius: 28px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+}
+
+#patient-map {
+    width: 100%;
+    height: 100%;
+    background: #151515;
+    /* Fallback */
+}
+
+/* Keyframes */
+@keyframes breathingRing {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 0.2;
+    }
+}
+
+@keyframes pulseGlow {
+
+    0%,
+    100% {
+        opacity: 0.6;
+        transform: scale(0.9);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+}
+
+@keyframes sheen {
+    0% {
+        left: -150%;
+    }
+
+    20% {
+        left: 150%;
+    }
+
+    100% {
+        left: 150%;
+    }
+}
+
 /* =========================================
    HERO SECTION (Logo & Title)
    ========================================= */
