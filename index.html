@@ -83,53 +83,46 @@
 
         <!-- Patient View -->
         <section id="view-patient" class="view">
-            <div class="sci-fi-container patient-layout">
+            <div class="patient-layout-glass">
 
-                <!-- Status Notification (Floating Glass Panel) -->
-                <div class="patient-status-panel">
-                    <div class="status-indicator-dot"></div>
-                    <h2 id="patient-status">Standby</h2>
+                <!-- Top Status Bar -->
+                <div class="glass-header">
+                    <div class="status-chip">
+                        <div class="pulse-dot"></div>
+                        <span id="patient-status-text">System Active</span>
+                    </div>
                 </div>
 
-                <!-- SOS Button Area -->
-                <div class="sos-action-area">
-                    <div class="sos-pulse-ring ring-1"></div>
-                    <div class="sos-pulse-ring ring-2"></div>
-                    <div class="sos-pulse-ring ring-3"></div>
-                    <button id="sos-btn" class="sci-fi-sos-btn">
-                        <span>SOS</span>
+                <!-- Main Action Area (Centered) -->
+                <div class="sos-center-container">
+                    <div class="sos-ripple-base"></div>
+                    <button id="sos-btn" class="sos-liquid-button">
+                        <span class="sos-label">SOS</span>
                     </button>
-                    <p class="sos-hint">Press for Emergency Assistance</p>
+                    <p class="sos-instruction">Press and hold for emergency</p>
                 </div>
 
-                <!-- Info/Map Panel (Hidden initially) -->
-                <div class="info-panel sci-fi-card hidden" id="patient-info-panel">
-                    <div class="panel-header-row">
-                        <h3>Ambulance Assigned</h3>
-                        <div class="live-tag">LIVE</div>
-                    </div>
-
-                    <div class="ambulance-stat-grid">
-                        <div class="stat-box">
-                            <span class="stat-label">UNIT ID</span>
-                            <span class="stat-value" id="assigned-ambulance-id">--</span>
-                        </div>
-                        <div class="stat-box">
-                            <span class="stat-label">ETA</span>
-                            <span class="stat-value highlight" id="patient-eta">--</span>
+                <!-- Floating Notification Card (Hidden by default) -->
+                <div id="patient-notification-card" class="glass-notification hidden-slide-down">
+                    <div class="notification-content">
+                        <div class="spinner-ring"></div>
+                        <div class="text-group">
+                            <h4 id="notif-title">SOS Sent</h4>
+                            <p id="notif-subtitle">Finding nearest ambulance...</p>
                         </div>
                     </div>
+                </div>
 
-                    <div class="map-container-glass">
-                        <div class="map-preview" id="patient-map"></div>
+                <!-- Bottom Sheet Map (Hidden initially) -->
+                <div id="patient-map-container" class="glass-map-sheet hidden-slide-up">
+                    <div class="drag-handle"></div>
+                    <div class="sheet-header">
+                        <div class="ambulance-info">
+                            <h3>Ambulance #<span id="assigned-ambulance-id">--</span></h3>
+                            <span class="eta-badge" id="patient-eta">-- min</span>
+                        </div>
                     </div>
-
-                    <div class="upload-section-glass">
-                        <label for="medical-file" class="upload-btn-glass"><i class="fas fa-file-medical"></i> Upload
-                            ID</label>
-                        <input type="file" id="medical-file" hidden>
-                        <span id="file-name" class="file-name-glass">No file chosen</span>
-                    </div>
+                    <div id="patient-map" class="rounded-map"></div>
                 </div>
 
             </div>
