@@ -52,11 +52,6 @@
                 <!-- Bottom Section: Role Cards -->
                 <div class="role-selector-area">
                     <div class="role-card-dock">
-                        <div class="role-card-glow-wrapper" style="--glow-color: #ff3b30;">
-                            <div class="role-card sci-fi-card" data-role="patient">
-                                <span>Patient</span>
-                            </div>
-                        </div>
 
                         <div class="role-card-glow-wrapper" style="--glow-color: #ff3b30;">
                             <div class="role-card sci-fi-card" data-role="ambulance">
@@ -76,61 +71,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-
-            </div>
-        </section>
-
-        <!-- Patient View -->
-        <section id="view-patient" class="view">
-            <div class="patient-layout-glass">
-
-                <!-- Top Status Bar -->
-                <div class="glass-header">
-                    <div class="status-chip">
-                        <div class="pulse-dot"></div>
-                        <span id="patient-status-text">System Active</span>
-                        <!-- Hidden Status for Logic Compatibility -->
-                        <div id="patient-status" style="display:none;"></div>
-                    </div>
-                </div>
-
-                <!-- Main Action Area (Centered) -->
-                <div class="sos-center-container">
-                    <div class="sos-ripple-base"></div>
-                    <button id="sos-btn" class="sos-liquid-button">
-                        <span class="sos-label">SOS</span>
-                    </button>
-                    <p class="sos-instruction">Press and hold for emergency</p>
-
-                    <!-- Hidden File Input for Logic Compatibility -->
-                    <input type="file" id="medical-file" hidden>
-                    <span id="file-name" style="display:none;"></span>
-                </div>
-
-                <!-- Floating Notification Card (Hidden by default) -->
-                <div id="patient-notification-card" class="glass-notification hidden-slide-down">
-                    <div class="notification-content">
-                        <div class="spinner-ring"></div>
-                        <div class="text-group">
-                            <h4 id="notif-title">SOS Sent</h4>
-                            <p id="notif-subtitle">Finding nearest ambulance...</p>
-                        </div>
-                    </div>
-                    <!-- Hidden Info Panel for Logic Compatibility -->
-                    <div id="patient-info-panel" class="hidden"></div>
-                </div>
-
-                <!-- Bottom Sheet Map (Hidden initially) -->
-                <div id="patient-map-container" class="glass-map-sheet hidden-slide-up">
-                    <div class="drag-handle"></div>
-                    <div class="sheet-header">
-                        <div class="ambulance-info">
-                            <h3>Ambulance #<span id="assigned-ambulance-id">--</span></h3>
-                            <span class="eta-badge" id="patient-eta">-- min</span>
-                        </div>
-                    </div>
-                    <div id="patient-map" class="rounded-map"></div>
                 </div>
 
             </div>
