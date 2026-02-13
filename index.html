@@ -90,6 +90,8 @@
                     <div class="status-chip">
                         <div class="pulse-dot"></div>
                         <span id="patient-status-text">System Active</span>
+                        <!-- Hidden Status for Logic Compatibility -->
+                        <div id="patient-status" style="display:none;"></div>
                     </div>
                 </div>
 
@@ -100,6 +102,10 @@
                         <span class="sos-label">SOS</span>
                     </button>
                     <p class="sos-instruction">Press and hold for emergency</p>
+
+                    <!-- Hidden File Input for Logic Compatibility -->
+                    <input type="file" id="medical-file" hidden>
+                    <span id="file-name" style="display:none;"></span>
                 </div>
 
                 <!-- Floating Notification Card (Hidden by default) -->
@@ -111,6 +117,8 @@
                             <p id="notif-subtitle">Finding nearest ambulance...</p>
                         </div>
                     </div>
+                    <!-- Hidden Info Panel for Logic Compatibility -->
+                    <div id="patient-info-panel" class="hidden"></div>
                 </div>
 
                 <!-- Bottom Sheet Map (Hidden initially) -->

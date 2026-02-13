@@ -530,6 +530,7 @@ body {
     z-index: 2;
     background: linear-gradient(180deg, #fff 0%, #ffcfcf 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.3));
 }
@@ -560,6 +561,7 @@ body {
 .sos-active .sos-label {
     background: linear-gradient(180deg, #fff 0%, #d4ffdb 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
@@ -613,6 +615,8 @@ body {
     width: 24px;
     height: 24px;
     background: #34c759;
+    background-clip: padding-box;
+    /* Compatibility fix */
     border-radius: 50%;
     display: flex;
     align-items: center;

@@ -252,54 +252,59 @@ function initPatient() {
     const sosBtn = document.getElementById('sos-btn');
     const fileInput = document.getElementById('medical-file');
 
-    sosBtn.addEventListener('click', async () => {
-        // 1. Visual State Update (Immediate)
-        const sosContainer = document.querySelector('.sos-center-container');
-        sosContainer.classList.add('sos-active');
+    if (sosBtn) {
+        sosBtn.addEventListener('click', async () => {
+            // 1. Visual State Update (Immediate)
+            const sosContainer = document.querySelector('.sos-center-container');
+            if (sosContainer) sosContainer.classList.add('sos-active');
 
-        // Disable button to prevent double-sends
-        sosBtn.disabled = true;
+            // Disable button to prevent double-sends
+            sosBtn.disabled = true;
 
-        // Show Apple-style Notification
-        const notification = document.getElementById('patient-notification-card');
-        notification.classList.remove('hidden-slide-down');
+            // Show Apple-style Notification
+            const notification = document.getElementById('patient-notification-card');
+            if (notification) notification.classList.remove('hidden-slide-down');
 
-        console.log("Patient GPS tracking started");
-        // Start tracking first, then sos will be called when location is found
-        startTracking();
+            console.log("Patient GPS tracking started");
+            // Start tracking first, then sos will be called when location is found
+            startTracking();
 
-        // 2. Real Logic: Wait for GPS Lock
-        // Check for location
-        if (currentState.location && currentState.location.lat) {
-            createSOS(currentState.location.lat, currentState.location.lng);
-        } else {
-            // Wait for first location update then trigger SOS
-            const checkLoc = setInterval(() => {
-                if (currentState.location && currentState.location.lat) {
-                    clearInterval(checkLoc);
-                    createSOS(currentState.location.lat, currentState.location.lng);
-                }
-            }, 1000);
-        }
-    });
+            // 2. Real Logic: Wait for GPS Lock
+            // Check for location
+            if (currentState.location && currentState.location.lat) {
+                createSOS(currentState.location.lat, currentState.location.lng);
+            } else {
+                // Wait for first location update then trigger SOS
+                const checkLoc = setInterval(() => {
+                    if (currentState.location && currentState.location.lat) {
+                        clearInterval(checkLoc);
+                        createSOS(currentState.location.lat, currentState.location.lng);
+                    }
+                }, 1000);
+            }
+        });
+    }
 
-    fileInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file || !currentState.activeSOS) return;
+    if (fileInput) {
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file || !currentState.activeSOS) return;
 
-        // Using a timestamp to ensure uniqueness
-        const storageRef = storage.ref(`medical_records/${currentState.activeSOS}/${Date.now()}_${file.name}`);
-        storageRef.put(file).then((snapshot) => {
-            snapshot.ref.getDownloadURL().then((url) => {
-                db.ref(`hospitalAlerts/${currentState.activeSOS}`).update({
-                    fileUrl: url,
-                    fileName: file.name
+            // Using a timestamp to ensure uniqueness
+            const storageRef = storage.ref(`medical_records/${currentState.activeSOS}/${Date.now()}_${file.name}`);
+            storageRef.put(file).then((snapshot) => {
+                snapshot.ref.getDownloadURL().then((url) => {
+                    db.ref(`hospitalAlerts/${currentState.activeSOS}`).update({
+                        fileUrl: url,
+                        fileName: file.name
+                    });
+                    const fileNameDisplay = document.getElementById('file-name');
+                    if (fileNameDisplay) fileNameDisplay.textContent = "Uploaded: " + file.name;
+                    db.ref(`activeSOS/${currentState.activeSOS}`).update({ hasMedicalFile: true });
                 });
-                document.getElementById('file-name').textContent = "Uploaded: " + file.name;
-                db.ref(`activeSOS/${currentState.activeSOS}`).update({ hasMedicalFile: true });
             });
         });
-    });
+    }
 }
 
 function updatePatientMap(lat, lng) {
