@@ -142,6 +142,127 @@ async function getRoute(startLat, startLng, endLat, endLng) {
 
 
 // ==========================================
+// ROLE: PATIENT
+// ==========================================
+function initPatient() {
+    initMap('patient-map');
+
+    const sosBtn = document.getElementById('sos-btn');
+    const statusBadge = document.getElementById('patient-status');
+    const notificationCard = document.getElementById('notification-card');
+
+    if (!sosBtn) return;
+
+    sosBtn.addEventListener('click', async () => {
+
+        if (!currentState.location) {
+            alert("Waiting for GPS...");
+            return;
+        }
+
+        sosBtn.classList.add('active');
+        statusBadge.innerText = "SOS Sent";
+        notificationCard.classList.remove('hidden');
+
+        // 1. Read all ambulances
+        const snapshot = await db.ref('ambulances').once('value');
+        const ambulances = snapshot.val();
+
+        if (!ambulances) return;
+
+        let nearestId = null;
+        let minDistance = Infinity;
+
+        Object.keys(ambulances).forEach(id => {
+            const amb = ambulances[id];
+            // Only consider active ambulances
+            if (amb.status === 'active') {
+                const dist = getDistance(
+                    currentState.location.lat,
+                    currentState.location.lng,
+                    amb.lat,
+                    amb.lng
+                );
+                if (dist < minDistance) {
+                    minDistance = dist;
+                    nearestId = id;
+                }
+            }
+        });
+
+        // 2. Create SOS record
+        const sosRef = db.ref('activeSOS').push();
+        currentState.activeSOS = sosRef.key;
+
+        await sosRef.set({
+            patientId: currentState.id,
+            patientLat: currentState.location.lat,
+            patientLng: currentState.location.lng,
+            assignedAmbulance: nearestId || "PENDING",
+            status: "assigned",
+            timestamp: Date.now()
+        });
+
+        document.getElementById('assigned-ambulance-id').innerText = nearestId || "Searching...";
+
+        // 3. Listen to ambulance movement if assigned
+        if (nearestId) {
+            db.ref('ambulances/' + nearestId).on('value', async (snap) => {
+                const amb = snap.val();
+                if (!amb) return;
+
+                updatePatientMapWithAmbulance(amb);
+
+                if (currentState.location) {
+                    const route = await getRoute(
+                        currentState.location.lat,
+                        currentState.location.lng,
+                        amb.lat,
+                        amb.lng
+                    );
+
+                    if (route) {
+                        document.getElementById('patient-eta').innerText = route.duration;
+                    }
+                }
+            });
+        }
+    });
+}
+
+function updatePatientMap(lat, lng) {
+    if (!map) return;
+    if (!markers['me']) {
+        const icon = L.divIcon({
+            className: 'custom-pin',
+            html: `<div style="background-color: #007aff; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 4px 6px rgba(0,0,0,0.3);"></div>`,
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+        });
+        markers['me'] = L.marker([lat, lng], { icon: icon }).addTo(map).bindPopup("You");
+        map.setView([lat, lng], 15);
+    } else {
+        markers['me'].setLatLng([lat, lng]);
+    }
+}
+
+function updatePatientMapWithAmbulance(ambLoc) {
+    if (!map) return;
+
+    if (!markers['assignedAmb']) {
+        const icon = L.divIcon({
+            className: 'custom-pin',
+            html: `<div style="font-size: 24px;">🚑</div>`,
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+        });
+        markers['assignedAmb'] = L.marker([ambLoc.lat, ambLoc.lng], { icon: icon }).addTo(map);
+    } else {
+        markers['assignedAmb'].setLatLng([ambLoc.lat, ambLoc.lng]);
+    }
+}
+
+// ==========================================
 // ROLE: AMBULANCE
 // ==========================================
 function initAmbulance() {
@@ -450,6 +571,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // if (role !== 'patient') startTracking(); // Handled inside inits now
 
+            if (role === 'patient') initPatient();
             if (role === 'ambulance') initAmbulance();
             if (role === 'hospital') initHospital();
             if (role === 'traffic') initTraffic();

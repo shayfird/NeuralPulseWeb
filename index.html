@@ -52,6 +52,11 @@
                 <!-- Bottom Section: Role Cards -->
                 <div class="role-selector-area">
                     <div class="role-card-dock">
+                        <div class="role-card-glow-wrapper" style="--glow-color: #ff3b30;">
+                            <div class="role-card sci-fi-card" data-role="patient">
+                                <span>Patient</span>
+                            </div>
+                        </div>
 
                         <div class="role-card-glow-wrapper" style="--glow-color: #ff3b30;">
                             <div class="role-card sci-fi-card" data-role="ambulance">
@@ -73,6 +78,30 @@
                     </div>
                 </div>
 
+            </div>
+        </section>
+
+
+        <!-- Patient View -->
+        <section id="view-patient" class="view">
+            <div class="patient-container">
+                <div class="patient-header">
+                    <h2>Emergency Assistance</h2>
+                    <div id="patient-status" class="status-badge">Standby</div>
+                </div>
+
+                <div class="sos-wrapper">
+                    <button id="sos-btn" class="sos-button">SOS</button>
+                </div>
+
+                <div id="notification-card" class="glass-card hidden">
+                    <h3 id="notification-title">SOS Sent</h3>
+                    <p id="notification-message">Finding nearest ambulance...</p>
+                    <p>ETA: <span id="patient-eta">--</span></p>
+                    <p>Ambulance ID: <span id="assigned-ambulance-id">--</span></p>
+                </div>
+
+                <div id="patient-map"></div>
             </div>
         </section>
 
