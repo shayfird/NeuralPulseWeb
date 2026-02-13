@@ -54,7 +54,7 @@ function getDistance(lat1, lon1, lat2, lon2) {
 }
 
 function showView(viewId) {
-    document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
     document.getElementById(viewId).classList.add('active');
 }
 
