@@ -469,7 +469,7 @@ body {
     z-index: 1;
 }
 
-.control-panel {
+#view-ambulance .control-panel {
     position: absolute;
     bottom: 2rem;
     left: 50%;
