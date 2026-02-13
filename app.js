@@ -202,6 +202,25 @@ async function createSOS(lat, lng) {
                 const dist = getDistance(currentState.location.lat, currentState.location.lng, ambLoc.lat, ambLoc.lng);
                 const eta = Math.ceil(dist * 1.5); // 1.5 mins per km
                 document.getElementById('patient-eta').textContent = `${eta} mins`;
+
+                // NOTIFICATION STATE 2: AMBULANCE FOUND / EN ROUTE
+                const notifTitle = document.getElementById('notif-title');
+                const notifSubtitle = document.getElementById('notif-subtitle');
+                const spinner = document.querySelector('.spinner-ring');
+
+                if (spinner) {
+                    // Replace Spinner with Success Icon
+                    const icon = document.createElement('div');
+                    icon.className = 'success-icon';
+                    icon.innerHTML = '<i class="fas fa-check"></i>';
+                    spinner.parentNode.replaceChild(icon, spinner);
+                }
+
+                notifTitle.innerText = "Ambulance En Route";
+                notifSubtitle.innerText = `ETA: ${eta} mins`;
+
+                // Show Map Sheet
+                document.getElementById('patient-map-container').classList.remove('hidden-slide-up');
             }
         });
 
@@ -234,11 +253,23 @@ function initPatient() {
     const fileInput = document.getElementById('medical-file');
 
     sosBtn.addEventListener('click', async () => {
+        // 1. Visual State Update (Immediate)
+        const sosContainer = document.querySelector('.sos-center-container');
+        sosContainer.classList.add('sos-active');
+
+        // Disable button to prevent double-sends
+        sosBtn.disabled = true;
+
+        // Show Apple-style Notification
+        const notification = document.getElementById('patient-notification-card');
+        notification.classList.remove('hidden-slide-down');
+
         console.log("Patient GPS tracking started");
         // Start tracking first, then sos will be called when location is found
         startTracking();
 
-        // Force immediate SOS if location already exists
+        // 2. Real Logic: Wait for GPS Lock
+        // Check for location
         if (currentState.location && currentState.location.lat) {
             createSOS(currentState.location.lat, currentState.location.lng);
         } else {
@@ -312,7 +343,8 @@ function initAmbulance() {
     initMap('ambulance-map');
 
     // 1. Setup ID and Continuous GPS Broadcast
-    currentState.id = "AMB001";
+    // Random ID for Hackathon Demo support (multiple phones)
+    currentState.id = "AMB-" + Math.floor(Math.random() * 10000);
     document.getElementById('ambulance-unit-id').innerText = currentState.id;
 
     // Broadcast GPS every 2 seconds
