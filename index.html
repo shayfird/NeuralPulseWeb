@@ -84,58 +84,59 @@
 
         <!-- Patient View -->
         <!-- Patient View -->
+        <!-- Patient View -->
         <section id="view-patient" class="view">
             <!-- Full Screen Map Background -->
             <div id="patient-map"></div>
 
-            <!-- Floating UI Overlay -->
-            <div class="patient-ui-overlay">
+            <!-- Main Container -->
+            <div class="patient-container">
 
-                <!-- Top Card: SOS & Location -->
-                <div class="whisk-card top-card">
-                    <div class="card-header-row">
-                        <div class="location-icon-box">
-                            <i class="fas fa-map-marker-alt"></i>
-                        </div>
-                        <div class="location-info">
-                            <span class="label-tiny">Real Time Location</span>
-                            <h3 class="location-title">San Francisco, CA</h3>
-                        </div>
-                    </div>
+                <!-- 1. Header -->
+                <div class="patient-header">
+                    <h2>NeuralPulse</h2>
+                    <div class="status-badge" id="patient-status">Standby</div>
+                </div>
 
-                    <div class="sos-action-zone">
-                        <div class="sos-pulse-ring"></div>
-                        <button id="sos-btn" class="whisk-sos-button">SOS</button>
-                        <div id="patient-status" class="status-pill status-standby">Standby</div>
+                <!-- 2. Interactive SOS -->
+                <div class="spacer-top"></div>
+
+                <div class="sos-container">
+                    <div class="sos-ring"></div>
+                    <div class="sos-glow"></div>
+                    <button id="sos-btn" class="sos-button">
+                        <span class="sos-text">SOS</span>
+                        <div class="sos-hint">Press & Hold</div>
+                    </button>
+                </div>
+
+                <div class="spacer-top"></div>
+
+                <!-- 3. Action Buttons & Notifications -->
+
+                <!-- Upload Button (Floating) -->
+                <button id="btn-upload-medical" class="glass-pill-button"
+                    onclick="document.getElementById('medical-file').click()">
+                    <i class="fas fa-file-medical"></i> Upload History
+                </button>
+                <input type="file" id="medical-file" hidden>
+
+                <!-- Ambulance Notification Card (Hidden initially) -->
+                <div id="notification-card" class="glass-card hidden">
+                    <div class="glass-card-content">
+                        <div class="spinner-border"></div>
+                        <div class="text-content">
+                            <h3>Ambulance Dispatched</h3>
+                            <p>Assigned ID: <span id="assigned-ambulance-id" class="accent-text">--</span></p>
+                            <div class="meta-info">
+                                <span>ETA: <span id="patient-eta">--</span></span>
+                                <span>•</span>
+                                <span>Live Tracking</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Bottom Card: Ambulance & Upload (Hidden by default, toggled via ID match) -->
-                <div id="notification-card" class="whisk-card bottom-card hidden">
-                    <div class="ambulance-info-row">
-                        <div class="amb-icon-box">
-                            <i class="fas fa-ambulance"></i>
-                        </div>
-                        <div class="amb-text-group">
-                            <h4>Ambulance En Route</h4>
-                            <p class="amb-sub">ID: <span id="assigned-ambulance-id">--</span></p>
-                        </div>
-                        <div class="eta-badge-group">
-                            <span id="patient-eta">--</span>
-                            <small>min</small>
-                        </div>
-                    </div>
-
-                    <div class="upload-action-row">
-                        <p class="upload-label">Medical Reports</p>
-                        <!-- Hidden Input for Logic Compatibility -->
-                        <input type="file" id="medical-file" hidden>
-                        <button id="btn-upload-medical" class="whisk-primary-button"
-                            onclick="document.getElementById('medical-file').click()">
-                            File Upload
-                        </button>
-                    </div>
-                </div>
             </div>
         </section>
 
